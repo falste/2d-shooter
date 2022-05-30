@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd444e88acbbcb1458ffc91374847c85, type: 3}
+  m_Name: DebugWeapon
+  m_EditorClassIdentifier: 
+  hasSingle: 1
+  hasBurst: 0
+  hasAuto: 1
+  hasAutoBurst: 1
+  cooldown: 0.2
+  afterBurstCooldown: 0.3
+  equipTime: 0.2
+  damage: 0
+  speed: 5
+  speedVariation: 0
+  impulse: 5
+  magSize: 30
+  reloadTime: 0
+  burstCount: 3
+  projectilesPerShotSpawn: 1
+  projectilesOffsetAngle: 0
+  prjPrefab: {fileID: 1068461318772562, guid: 55917583313420f4eb8559328c696894, type: 2}
+  inheritVelocityMultiplier: 0
+  maxOffsetAngle: 0
+  recoilDecayTime: 1
+  maxRecoilAngle: 0
+  shotSpawnsUsage: 1
+  shotSpawns:
+  - {fileID: 4917726139938034, guid: c5d8c4439ceb73547b17f89dea4e7565, type: 2}

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f30b91e2d57aa47905c102fbf60255, type: 3}
+  m_Name: PositioningSettings
+  m_EditorClassIdentifier: 
+  gridSize: 11
+  followPathUpdateTime: 0.1
+  positioningUpdateTime: 0.2
+  collisionRecalcTime: 0.2
+  idealDistanceToEnemy: 15
+  idealDistanceToAlly: 6
+  distToAllyMultiplier: 5
+  distToEnemyMultiplier: 5
+  distToAllyBand: 4
+  distToEnemyBand: 3
+  distToEnemyPower: 1
+  distToAllyPower: 1
+  movementCost: 2
+  sameTileBonus: 5
+  occupiedCost: 10
+  LOSMultiplier: 10
+  LOSSitRatThreshold: 0.1
+  gradientMultiplier: 15
+  gradientSitRatThreshold: -0.1
+  noiseMultiplier: 5
+  noiseScaling: 0.3
+  noiseSpeed: 0.3

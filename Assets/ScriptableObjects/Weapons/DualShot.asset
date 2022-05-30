@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd444e88acbbcb1458ffc91374847c85, type: 3}
+  m_Name: DualShot
+  m_EditorClassIdentifier: 
+  hasSingle: 0
+  hasBurst: 0
+  hasAuto: 1
+  hasAutoBurst: 0
+  cooldown: 0.05
+  afterBurstCooldown: 0.3
+  equipTime: 0.2
+  damage: 10
+  speed: 20
+  speedVariation: 1
+  impulseRecoil: 0
+  impulseHit: 5
+  magSize: 100
+  reloadTime: 1.5
+  burstCount: 3
+  projectilesPerShotSpawn: 1
+  projectilesOffsetAngle: 0
+  prjPrefab: {fileID: 1068461318772562, guid: 55917583313420f4eb8559328c696894, type: 2}
+  inheritVelocityMultiplier: 0
+  maxOffsetAngle: 0
+  recoilDecayTime: 0.3
+  maxRecoilAngle: 20
+  shotSpawnsUsage: 0
+  shotSpawns:
+  - {fileID: 4884805829046058, guid: c5d8c4439ceb73547b17f89dea4e7565, type: 2}
+  - {fileID: 4476923696479986, guid: c5d8c4439ceb73547b17f89dea4e7565, type: 2}
