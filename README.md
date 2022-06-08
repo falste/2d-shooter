@@ -1,7 +1,7 @@
 # 2D-Shooter
-This is a topdown shooter prototype with the main focus on the enemy AI. This is intended as a demonstration, the code is not optimal.
+This is a topdown shooter prototype with the main focus on the enemy AI. This is intended as a demonstration/exploration of some concepts.
 
-The AI position itself based on a grid of surrounding cells, for which a cost is calculated. This calculation is based on:
+The AI positions itself based on a grid of surrounding cells, for which a cost is calculated. This calculation is based on:
 - Distance to move
 - Occupation of the cell
 - Distance to allies
