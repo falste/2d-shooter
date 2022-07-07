@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class TempRotation : MonoBehaviour {
 
-	public float speed;
+    public float speed;
 
-	void Update () {
-		transform.Rotate(speed*Time.deltaTime, speed*Time.deltaTime, speed*Time.deltaTime);
-	}
+    void Update () {
+        transform.Rotate(speed*Time.deltaTime, speed*Time.deltaTime, speed*Time.deltaTime);
+    }
 }

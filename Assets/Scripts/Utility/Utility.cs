@@ -25,156 +25,156 @@ public class Singleton {
 
 namespace Utility
 {
-	public static class EditorUtils {
-		public static void ScriptField(Editor context) {
-			SerializedObject serializedObject = context.serializedObject;
-			serializedObject.Update();
-			GUI.enabled = false;
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
-			GUI.enabled = true;
-		}
+    public static class EditorUtils {
+        public static void ScriptField(Editor context) {
+            SerializedObject serializedObject = context.serializedObject;
+            serializedObject.Update();
+            GUI.enabled = false;
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
+            GUI.enabled = true;
+        }
 
-		public static bool StaticClassFoldout(bool foldout, System.Type type, string name = null) {
-			if (name == null) {
-				name = ObjectNames.NicifyVariableName(type.Name);
-			}
-			
-			foldout = EditorGUILayout.Foldout(foldout, name, true);
-			if (foldout) {
-				EditorGUI.indentLevel++;
-				foreach (System.Reflection.FieldInfo field in type.GetFields()) {
-					if (field.FieldType == typeof(bool)) {
-						field.SetValue(null, EditorGUILayout.Toggle(ObjectNames.NicifyVariableName(field.Name), (bool)field.GetValue(null)));
-					} // Add more field types or use SerializedProperties instead.
-				}
-				EditorGUI.indentLevel--;
-			}
+        public static bool StaticClassFoldout(bool foldout, System.Type type, string name = null) {
+            if (name == null) {
+                name = ObjectNames.NicifyVariableName(type.Name);
+            }
+            
+            foldout = EditorGUILayout.Foldout(foldout, name, true);
+            if (foldout) {
+                EditorGUI.indentLevel++;
+                foreach (System.Reflection.FieldInfo field in type.GetFields()) {
+                    if (field.FieldType == typeof(bool)) {
+                        field.SetValue(null, EditorGUILayout.Toggle(ObjectNames.NicifyVariableName(field.Name), (bool)field.GetValue(null)));
+                    } // Add more field types or use SerializedProperties instead.
+                }
+                EditorGUI.indentLevel--;
+            }
 
-			return foldout;
-		}
+            return foldout;
+        }
 
-		public static bool ScriptableObjectFoldout<T>(bool foldout, ref T so, ref Editor soEditor, string name = null) where T : ScriptableObject {
-			if (name == null) {
-				name = ObjectNames.NicifyVariableName(typeof(T).Name);
-			}
+        public static bool ScriptableObjectFoldout<T>(bool foldout, ref T so, ref Editor soEditor, string name = null) where T : ScriptableObject {
+            if (name == null) {
+                name = ObjectNames.NicifyVariableName(typeof(T).Name);
+            }
 
-			// Use rect to draw ObjectField and Foldout in the same spot
-			Rect rect = EditorGUILayout.GetControlRect();
-			so = (T)EditorGUI.ObjectField(rect, name, so, typeof(T), true);
-			foldout = EditorGUI.Foldout(rect, foldout, (string)null, true);
-			if (so != null) {
-				if (foldout) {
-					EditorGUI.indentLevel++;
-					if (soEditor == null) {
-						soEditor = Editor.CreateEditorWithContext(new T[] { so }, null);
-					}
-					soEditor.OnInspectorGUI();
-					EditorGUI.indentLevel--;
-				}
+            // Use rect to draw ObjectField and Foldout in the same spot
+            Rect rect = EditorGUILayout.GetControlRect();
+            so = (T)EditorGUI.ObjectField(rect, name, so, typeof(T), true);
+            foldout = EditorGUI.Foldout(rect, foldout, (string)null, true);
+            if (so != null) {
+                if (foldout) {
+                    EditorGUI.indentLevel++;
+                    if (soEditor == null) {
+                        soEditor = Editor.CreateEditorWithContext(new T[] { so }, null);
+                    }
+                    soEditor.OnInspectorGUI();
+                    EditorGUI.indentLevel--;
+                }
 
-				// https://gamedev.stackexchange.com/questions/125698/how-to-edit-and-persist-serializable-assets-in-the-editor-window
-				if (GUI.changed) {
-					EditorUtility.SetDirty(so);
-				}
-			}
+                // https://gamedev.stackexchange.com/questions/125698/how-to-edit-and-persist-serializable-assets-in-the-editor-window
+                if (GUI.changed) {
+                    EditorUtility.SetDirty(so);
+                }
+            }
 
-			return foldout;
-		}
-	}
+            return foldout;
+        }
+    }
 
     namespace StateMachine
     {
-		public interface IStateMachineBlackboard {
+        public interface IStateMachineBlackboard {
 
-		}
+        }
 
         public class StateMachine
         {
-			public State State { get; private set; }
-			public readonly IStateMachineBlackboard blackboard;
-			bool forceState;
+            public State State { get; private set; }
+            public readonly IStateMachineBlackboard blackboard;
+            bool forceState;
 
-			public StateMachine (IStateMachineBlackboard blackboard) {
-				this.blackboard = blackboard;
-			}
+            public StateMachine (IStateMachineBlackboard blackboard) {
+                this.blackboard = blackboard;
+            }
 
-			public void ForceState(bool force) {
-				if (force) {
-					Debug.Log("Forcing state to " + State.ToString());
-				}
+            public void ForceState(bool force) {
+                if (force) {
+                    Debug.Log("Forcing state to " + State.ToString());
+                }
 
-				forceState = force;
-			}
+                forceState = force;
+            }
 
             public void Transition(State newState)
             {
-				if (forceState)
-					return;
-				if (State == newState)
-					return;
+                if (forceState)
+                    return;
+                if (State == newState)
+                    return;
 
-				//Debug.Log("Transitioning to " + newState.ToString());
-				if (State != null)
-					State.OnExit();
-				State = newState;
-				State.OnEnter();
+                //Debug.Log("Transitioning to " + newState.ToString());
+                if (State != null)
+                    State.OnExit();
+                State = newState;
+                State.OnEnter();
             }
-			
-			public void Update() {
-				if (State != null)
-					State.OnUpdate();
-			}
+            
+            public void Update() {
+                if (State != null)
+                    State.OnUpdate();
+            }
 
-			public void FixedUpdate() {
-				if (State != null)
-					State.OnFixedUpdate();
-			}
+            public void FixedUpdate() {
+                if (State != null)
+                    State.OnFixedUpdate();
+            }
 
-			public void OnDrawGizmos() {
-				if (State != null)
-					State.OnDrawGizmos();
-			}
+            public void OnDrawGizmos() {
+                if (State != null)
+                    State.OnDrawGizmos();
+            }
 
-			public void OnDrawGizmosSelected() {
-				if (State != null)
-					State.OnDrawGizmosSelected();
-			}
+            public void OnDrawGizmosSelected() {
+                if (State != null)
+                    State.OnDrawGizmosSelected();
+            }
         }
 
-		public abstract class State
+        public abstract class State
         {
-			protected StateMachine sm;
+            protected StateMachine sm;
 
-			public State(StateMachine sm) {
-				this.sm = sm;
-			}
+            public State(StateMachine sm) {
+                this.sm = sm;
+            }
 
-			public virtual void OnEnter() { }
-			public virtual void OnUpdate() { }
-			public virtual void OnFixedUpdate() { }
-			public virtual void OnExit() { }
-			public virtual void OnDrawGizmos() { }
-			public virtual void OnDrawGizmosSelected() { }
-		}
+            public virtual void OnEnter() { }
+            public virtual void OnUpdate() { }
+            public virtual void OnFixedUpdate() { }
+            public virtual void OnExit() { }
+            public virtual void OnDrawGizmos() { }
+            public virtual void OnDrawGizmosSelected() { }
+        }
     }
 
     public static class General
     {
-		[System.Obsolete]
-		public static Vector2 V3toV2(Vector3 v3) {
-			return new Vector2 {
-				x = v3.x,
-				y = v3.y
-			};
-		}
+        [System.Obsolete]
+        public static Vector2 V3toV2(Vector3 v3) {
+            return new Vector2 {
+                x = v3.x,
+                y = v3.y
+            };
+        }
 
-		// Draws lines from p1 to p2 to p3 to p4
-		public static void DrawRectGizmo(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
-			Gizmos.DrawLine(p1, p2);
-			Gizmos.DrawLine(p2, p3);
-			Gizmos.DrawLine(p3, p4);
-			Gizmos.DrawLine(p4, p1);
-		}
+        // Draws lines from p1 to p2 to p3 to p4
+        public static void DrawRectGizmo(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) {
+            Gizmos.DrawLine(p1, p2);
+            Gizmos.DrawLine(p2, p3);
+            Gizmos.DrawLine(p3, p4);
+            Gizmos.DrawLine(p4, p1);
+        }
 
         public static readonly Mesh QuadMesh = new Mesh {
             vertices = new Vector3[] {
@@ -197,8 +197,8 @@ namespace Utility
     {       
         public static class Angles
         {
-			public static float Rad2Deg = 180 / Mathf.PI;
-			public static float Deg2Rad = Mathf.PI / 180;
+            public static float Rad2Deg = 180 / Mathf.PI;
+            public static float Deg2Rad = Mathf.PI / 180;
 
             public enum AngleMeasure { Degrees, Radians };
 
@@ -234,7 +234,7 @@ namespace Utility
             /// <summary>
             /// Returns a conversion factor for the conversion from one angle measure to another.
             /// </summary>
-			[System.Obsolete]
+            [System.Obsolete]
             public static float MeasureConverter(AngleMeasure from, AngleMeasure to)
             {
                 if (from == to) {
@@ -276,15 +276,15 @@ namespace Utility
                 return angle;
             }
 
-			public static float ClockwiseAngle(Vector2 v1, Vector2 v2) {
-				float sign = Mathf.Sign(v1.x * v2.y - v1.y * v2.x);
-				return Vector2.Angle(v1, v2) * sign;
-			}
+            public static float ClockwiseAngle(Vector2 v1, Vector2 v2) {
+                float sign = Mathf.Sign(v1.x * v2.y - v1.y * v2.x);
+                return Vector2.Angle(v1, v2) * sign;
+            }
         }
 
-		public static int V2IntOneNorm(Vector2Int v) {
-			return Mathf.Abs(v.x) + Mathf.Abs(v.y);
-		}
+        public static int V2IntOneNorm(Vector2Int v) {
+            return Mathf.Abs(v.x) + Mathf.Abs(v.y);
+        }
 
         public static float Derivate(float newValue, float oldValue, float dT)
         {
@@ -344,64 +344,64 @@ namespace Utility
             return 1 / Mathf.Sqrt(2 * Mathf.PI * sigma * sigma) * Mathf.Exp(-Mathf.Pow(x - mu, 2) / (2 * sigma * sigma));
         }
 
-		public static float InterceptTime(Vector2 relativeTargetPosition, Vector2 relativeTargetVelocity, float projectileSpeed) {
-			// http://officialtwelve.blogspot.com/2015/08/projectile-interception.html
+        public static float InterceptTime(Vector2 relativeTargetPosition, Vector2 relativeTargetVelocity, float projectileSpeed) {
+            // http://officialtwelve.blogspot.com/2015/08/projectile-interception.html
 
-			float angle = Angles.ClockwiseAngle(relativeTargetVelocity, -relativeTargetPosition);
+            float angle = Angles.ClockwiseAngle(relativeTargetVelocity, -relativeTargetPosition);
 
-			float a = relativeTargetVelocity.sqrMagnitude - Mathf.Pow(projectileSpeed, 2);
-			float b = relativeTargetVelocity.magnitude * (-2 * relativeTargetPosition.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad));
-			float c = relativeTargetPosition.sqrMagnitude;
+            float a = relativeTargetVelocity.sqrMagnitude - Mathf.Pow(projectileSpeed, 2);
+            float b = relativeTargetVelocity.magnitude * (-2 * relativeTargetPosition.magnitude * Mathf.Cos(angle * Mathf.Deg2Rad));
+            float c = relativeTargetPosition.sqrMagnitude;
 
-			float determinant = b * b - 4 * a * c;
+            float determinant = b * b - 4 * a * c;
 
-			if (determinant < 0 || a == 0f) {
-				return 0f; // No possible intercept! a == 0f check prevents division by 0
-			}
+            if (determinant < 0 || a == 0f) {
+                return 0f; // No possible intercept! a == 0f check prevents division by 0
+            }
 
-			float t1 = (-b - Mathf.Sqrt(determinant)) / (2 * a);
-			if (t1 > 0)
-				return t1;
+            float t1 = (-b - Mathf.Sqrt(determinant)) / (2 * a);
+            if (t1 > 0)
+                return t1;
 
-			float t2 = (-b + Mathf.Sqrt(determinant)) / (2 * a);
-			return t2;
-		}
+            float t2 = (-b + Mathf.Sqrt(determinant)) / (2 * a);
+            return t2;
+        }
 
-		public static Vector2 RelativeInterceptPoint(Vector2 relativeTargetPosition, Vector2 relativeTargetVelocity, float interceptTime) {
-			return relativeTargetPosition + relativeTargetVelocity * interceptTime;
-		}
+        public static Vector2 RelativeInterceptPoint(Vector2 relativeTargetPosition, Vector2 relativeTargetVelocity, float interceptTime) {
+            return relativeTargetPosition + relativeTargetVelocity * interceptTime;
+        }
     }
 
-	public class Complex {
-		public enum Notation { RealImag, MagnPhase }
-		public float Real { get; private set; }
-		public float Imag { get; private set; }
-		public float Magn { get; private set; }
-		public float Phase { get; private set; }
+    public class Complex {
+        public enum Notation { RealImag, MagnPhase }
+        public float Real { get; private set; }
+        public float Imag { get; private set; }
+        public float Magn { get; private set; }
+        public float Phase { get; private set; }
 
-		/// <summary>
-		/// Creates a complex number
-		/// </summary>
-		/// <param name="a">Real part or magnitude</param>
-		/// <param name="b">Imaginary part or phase</param>
-		public Complex(float a, float b, Notation notation) {
-			if (notation == Notation.RealImag) {
-				Real = a;
-				Imag = b;
-				Magn = Mathf.Sqrt(Real * Real + Imag * Imag);
-				if (b >= 0) {
-					Phase = Mathf.Acos(Real / Magn);
-				} else {
-					Phase = -Mathf.Acos(Real / Magn);
-				}
-			} else {
-				Magn = a;
-				Phase = b;
-				Real = Magn * Mathf.Cos(Phase);
-				Imag = Magn * Mathf.Sin(Phase);
-			}
-		}
-	}
+        /// <summary>
+        /// Creates a complex number
+        /// </summary>
+        /// <param name="a">Real part or magnitude</param>
+        /// <param name="b">Imaginary part or phase</param>
+        public Complex(float a, float b, Notation notation) {
+            if (notation == Notation.RealImag) {
+                Real = a;
+                Imag = b;
+                Magn = Mathf.Sqrt(Real * Real + Imag * Imag);
+                if (b >= 0) {
+                    Phase = Mathf.Acos(Real / Magn);
+                } else {
+                    Phase = -Mathf.Acos(Real / Magn);
+                }
+            } else {
+                Magn = a;
+                Phase = b;
+                Real = Magn * Mathf.Cos(Phase);
+                Imag = Magn * Mathf.Sin(Phase);
+            }
+        }
+    }
 
     public class Matrix
     {
@@ -1055,52 +1055,52 @@ namespace Utility
             Debug.Log(str);
         }
 
-		public static void LogArrayToCsv<T>(T[] o, string path) {
-			string str = o[0].ToString();
-			for (int i = 1; i < o.Length; i++) {
-				str += "," + o[i].ToString();
-			}
+        public static void LogArrayToCsv<T>(T[] o, string path) {
+            string str = o[0].ToString();
+            for (int i = 1; i < o.Length; i++) {
+                str += "," + o[i].ToString();
+            }
 
-			StreamWriter writer = new StreamWriter(path, false);
-			writer.WriteLine(str);
-			writer.Close();
-		}
+            StreamWriter writer = new StreamWriter(path, false);
+            writer.WriteLine(str);
+            writer.Close();
+        }
 
-		public class LogToCsv {
-			String filePath;
-			float[] values;
-			int logIndex;
+        public class LogToCsv {
+            String filePath;
+            float[] values;
+            int logIndex;
 
-			public LogToCsv(string filePath, float duration = 10f) {
-				values = new float[Mathf.RoundToInt(duration / Time.fixedDeltaTime)+1];
-				logIndex = 0;
-				this.filePath = filePath;
-				Debug.Log("Starting log for " + filePath);
-			}
+            public LogToCsv(string filePath, float duration = 10f) {
+                values = new float[Mathf.RoundToInt(duration / Time.fixedDeltaTime)+1];
+                logIndex = 0;
+                this.filePath = filePath;
+                Debug.Log("Starting log for " + filePath);
+            }
 
-			/// <summary>
-			/// Use in FixedUpdate!
-			/// </summary>
-			public void Log(float variable) {
-				if (logIndex < values.Length) {
-					values[logIndex] = variable;
-					logIndex++;
-				} else if(logIndex == values.Length) {
-					logIndex++;
-					Debug.Log("Finished logging! Saving to "+filePath);
+            /// <summary>
+            /// Use in FixedUpdate!
+            /// </summary>
+            public void Log(float variable) {
+                if (logIndex < values.Length) {
+                    values[logIndex] = variable;
+                    logIndex++;
+                } else if(logIndex == values.Length) {
+                    logIndex++;
+                    Debug.Log("Finished logging! Saving to "+filePath);
 
-					string str = values[0].ToString();
-					for (int i = 1; i < values.Length; i++) {
-						str += "," + values[i].ToString();
-					}
+                    string str = values[0].ToString();
+                    for (int i = 1; i < values.Length; i++) {
+                        str += "," + values[i].ToString();
+                    }
 
-					StreamWriter writer = new StreamWriter(filePath, false);
-					writer.WriteLine(Time.fixedDeltaTime.ToString());
-					writer.WriteLine(str);
-					writer.Close();
-				}
-			}
-		}
+                    StreamWriter writer = new StreamWriter(filePath, false);
+                    writer.WriteLine(Time.fixedDeltaTime.ToString());
+                    writer.WriteLine(str);
+                    writer.Close();
+                }
+            }
+        }
     }
 
     public static class Hashing
@@ -1134,140 +1134,140 @@ namespace Utility
         }
     }
 
-	public static class Noise {
-		// From:
-		// https://flafla2.github.io/2014/08/09/perlinnoise.html
-		// https://gist.github.com/Flafla2/f0260a861be0ebdeef76
+    public static class Noise {
+        // From:
+        // https://flafla2.github.io/2014/08/09/perlinnoise.html
+        // https://gist.github.com/Flafla2/f0260a861be0ebdeef76
 
-		static int repeat = -1;
+        static int repeat = -1;
 
-		public static float PerlinNoise3DOctaves(float x, float y, float z, int octaves, float persistence) {
-			float total = 0;
-			float frequency = 1;
-			float amplitude = 1;
-			float maxValue = 0;            // Used for normalizing result to 0.0 - 1.0
-			for (int i = 0; i < octaves; i++) {
-				total += PerlinNoise3D(x * frequency, y * frequency, z * frequency) * amplitude;
+        public static float PerlinNoise3DOctaves(float x, float y, float z, int octaves, float persistence) {
+            float total = 0;
+            float frequency = 1;
+            float amplitude = 1;
+            float maxValue = 0;            // Used for normalizing result to 0.0 - 1.0
+            for (int i = 0; i < octaves; i++) {
+                total += PerlinNoise3D(x * frequency, y * frequency, z * frequency) * amplitude;
 
-				maxValue += amplitude;
+                maxValue += amplitude;
 
-				amplitude *= persistence;
-				frequency *= 2;
-			}
+                amplitude *= persistence;
+                frequency *= 2;
+            }
 
-			return total / maxValue;
-		}
+            return total / maxValue;
+        }
 
-		static readonly int[] p = { 151,160,137,91,90,15,					// Hash lookup table as defined by Ken Perlin.  This is a randomly
-			131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,	// arranged array of all numbers from 0-255 inclusive.
-			190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
-			88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
-			77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
-			102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
-			135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
-			5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
-			223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
-			129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
-			251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
-			49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
-			138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
-			151,160,137,91,90,15,
-			131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
-			190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
-			88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
-			77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
-			102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
-			135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
-			5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
-			223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
-			129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
-			251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
-			49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
-			138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
-		};
+        static readonly int[] p = { 151,160,137,91,90,15,                    // Hash lookup table as defined by Ken Perlin.  This is a randomly
+            131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,    // arranged array of all numbers from 0-255 inclusive.
+            190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
+            88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
+            77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
+            102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
+            135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
+            5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
+            223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
+            129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
+            251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
+            49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
+            138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
+            151,160,137,91,90,15,
+            131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
+            190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
+            88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
+            77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
+            102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
+            135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
+            5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
+            223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
+            129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
+            251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
+            49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
+            138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
+        };
 
-		public static float PerlinNoise3D(float x, float y, float z) {
-			if (repeat > 0) {                                   // If we have any repeat on, change the coordinates to their "local" repetitions
-				x = x % repeat;
-				y = y % repeat;
-				z = z % repeat;
-			}
+        public static float PerlinNoise3D(float x, float y, float z) {
+            if (repeat > 0) {                                   // If we have any repeat on, change the coordinates to their "local" repetitions
+                x = x % repeat;
+                y = y % repeat;
+                z = z % repeat;
+            }
 
-			int xi = (int)x & 255;                              // Calculate the "unit cube" that the point asked will be located in
-			int yi = (int)y & 255;                              // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
-			int zi = (int)z & 255;                              // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
-			float xf = x - (int)x;                             // We also fade the location to smooth the result.
-			float yf = y - (int)y;
-			float zf = z - (int)z;
-			float u = Fade(xf);
-			float v = Fade(yf);
-			float w = Fade(zf);
+            int xi = (int)x & 255;                              // Calculate the "unit cube" that the point asked will be located in
+            int yi = (int)y & 255;                              // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+            int zi = (int)z & 255;                              // plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
+            float xf = x - (int)x;                             // We also fade the location to smooth the result.
+            float yf = y - (int)y;
+            float zf = z - (int)z;
+            float u = Fade(xf);
+            float v = Fade(yf);
+            float w = Fade(zf);
 
-			int aaa, aba, aab, abb, baa, bba, bab, bbb;
-			aaa = p[p[p[xi] + yi] + zi];
-			aba = p[p[p[xi] + Inc(yi)] + zi];
-			aab = p[p[p[xi] + yi] + Inc(zi)];
-			abb = p[p[p[xi] + Inc(yi)] + Inc(zi)];
-			baa = p[p[p[Inc(xi)] + yi] + zi];
-			bba = p[p[p[Inc(xi)] + Inc(yi)] + zi];
-			bab = p[p[p[Inc(xi)] + yi] + Inc(zi)];
-			bbb = p[p[p[Inc(xi)] + Inc(yi)] + Inc(zi)];
+            int aaa, aba, aab, abb, baa, bba, bab, bbb;
+            aaa = p[p[p[xi] + yi] + zi];
+            aba = p[p[p[xi] + Inc(yi)] + zi];
+            aab = p[p[p[xi] + yi] + Inc(zi)];
+            abb = p[p[p[xi] + Inc(yi)] + Inc(zi)];
+            baa = p[p[p[Inc(xi)] + yi] + zi];
+            bba = p[p[p[Inc(xi)] + Inc(yi)] + zi];
+            bab = p[p[p[Inc(xi)] + yi] + Inc(zi)];
+            bbb = p[p[p[Inc(xi)] + Inc(yi)] + Inc(zi)];
 
-			float x1, x2, y1, y2;
-			x1 = Lerp(Grad(aaa, xf, yf, zf),                // The gradient function calculates the dot product between a pseudorandom
-						Grad(baa, xf - 1, yf, zf),              // gradient vector and the vector from the input coordinate to the 8
-						u);                                     // surrounding points in its unit cube.
-			x2 = Lerp(Grad(aba, xf, yf - 1, zf),                // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
-						Grad(bba, xf - 1, yf - 1, zf),              // values we made earlier.
-						  u);
-			y1 = Lerp(x1, x2, v);
+            float x1, x2, y1, y2;
+            x1 = Lerp(Grad(aaa, xf, yf, zf),                // The gradient function calculates the dot product between a pseudorandom
+                        Grad(baa, xf - 1, yf, zf),              // gradient vector and the vector from the input coordinate to the 8
+                        u);                                     // surrounding points in its unit cube.
+            x2 = Lerp(Grad(aba, xf, yf - 1, zf),                // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
+                        Grad(bba, xf - 1, yf - 1, zf),              // values we made earlier.
+                          u);
+            y1 = Lerp(x1, x2, v);
 
-			x1 = Lerp(Grad(aab, xf, yf, zf - 1),
-						Grad(bab, xf - 1, yf, zf - 1),
-						u);
-			x2 = Lerp(Grad(abb, xf, yf - 1, zf - 1),
-						  Grad(bbb, xf - 1, yf - 1, zf - 1),
-						  u);
-			y2 = Lerp(x1, x2, v);
+            x1 = Lerp(Grad(aab, xf, yf, zf - 1),
+                        Grad(bab, xf - 1, yf, zf - 1),
+                        u);
+            x2 = Lerp(Grad(abb, xf, yf - 1, zf - 1),
+                          Grad(bbb, xf - 1, yf - 1, zf - 1),
+                          u);
+            y2 = Lerp(x1, x2, v);
 
-			return Lerp(y1, y2, w);                       // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
-		}
+            return Lerp(y1, y2, w);                       // For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+        }
 
-		static int Inc(int num) {
-			num++;
-			if (repeat > 0)
-				num %= repeat;
+        static int Inc(int num) {
+            num++;
+            if (repeat > 0)
+                num %= repeat;
 
-			return num;
-		}
+            return num;
+        }
 
-		static float Grad(int hash, float x, float y, float z) {
-			int h = hash & 15;                                  // Take the hashed value and take the first 4 bits of it (15 == 0b1111)
-			float u = h < 8 /* 0b1000 */ ? x : y;              // If the most significant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.
+        static float Grad(int hash, float x, float y, float z) {
+            int h = hash & 15;                                  // Take the hashed value and take the first 4 bits of it (15 == 0b1111)
+            float u = h < 8 /* 0b1000 */ ? x : y;              // If the most significant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.
 
-			float v;                                           // In Ken Perlin's original implementation this was another conditional operator (?:).  I
-																// expanded it for readability.
+            float v;                                           // In Ken Perlin's original implementation this was another conditional operator (?:).  I
+                                                                // expanded it for readability.
 
-			if (h < 4 /* 0b0100 */)                             // If the first and second significant bits are 0 set v = y
-				v = y;
-			else if (h == 12 /* 0b1100 */ || h == 14 /* 0b1110*/)// If the first and second significant bits are 1 set v = x
-				v = x;
-			else                                                // If the first and second significant bits are not equal (0/1, 1/0) set v = z
-				v = z;
+            if (h < 4 /* 0b0100 */)                             // If the first and second significant bits are 0 set v = y
+                v = y;
+            else if (h == 12 /* 0b1100 */ || h == 14 /* 0b1110*/)// If the first and second significant bits are 1 set v = x
+                v = x;
+            else                                                // If the first and second significant bits are not equal (0/1, 1/0) set v = z
+                v = z;
 
-			return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v); // Use the last 2 bits to decide if u and v are positive or negative.  Then return their addition.
-		}
+            return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v); // Use the last 2 bits to decide if u and v are positive or negative.  Then return their addition.
+        }
 
-		static float Fade(float t) {
-			// Fade function as defined by Ken Perlin.  This eases coordinate values
-			// so that they will "ease" towards integral values.  This ends up smoothing
-			// the final output.
-			return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
-		}
+        static float Fade(float t) {
+            // Fade function as defined by Ken Perlin.  This eases coordinate values
+            // so that they will "ease" towards integral values.  This ends up smoothing
+            // the final output.
+            return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
+        }
 
-		static float Lerp(float a, float b, float x) {
-			return a + x * (b - a);
-		}
-	}
+        static float Lerp(float a, float b, float x) {
+            return a + x * (b - a);
+        }
+    }
 }
  

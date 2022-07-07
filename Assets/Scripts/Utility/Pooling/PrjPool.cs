@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 
 public class PrjPool : MonoPool<Projectile>{
-	public static PrjPool Instance { get; private set; }
+    public static PrjPool Instance { get; private set; }
 
-	void OnValidate() {
-		Instance = this;	
-	}
+    void OnValidate() {
+        Instance = this;    
+    }
 }
